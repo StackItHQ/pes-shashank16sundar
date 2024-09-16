@@ -1,6 +1,7 @@
 const { GoogleSpreadsheet } = require("google-spreadsheet");
 const { JWT } = require("google-auth-library");
 const { google } = require("googleapis");
+const syncService = require("./syncService");
 
 require("dotenv").config();
 
@@ -28,28 +29,50 @@ class SheetsService {
 
   async getAllRows() {
     await this.init();
-    return await this.sheet.getRows();
+    const rows = await this.sheet.getRows();
+    return rows.map((row) => ({
+      id: row._rawData[0],
+      name: row._rawData[1],
+      age: row._rawData[2],
+      email: row._rawData[3],
+      last_modified: new Date(row._rawData[4]).getTime(),
+    }));
   }
 
   async addRow(data) {
     await this.init();
-    return await this.sheet.addRow(data);
+    const rowData = {
+      id: data.id,
+      name: data.name,
+      age: data.age,
+      email: data.email,
+      last_modified: data.last_modified,
+    };
+    await this.sheet.addRow(rowData);
+    // syncService.syncSheetsToDb();
+    return;
   }
 
   async updateRow(rowIndex, data) {
     await this.init();
     const rows = await this.sheet.getRows();
     const row = rows[rowIndex];
-    Object.keys(data).forEach((key) => {
-      row[key] = data[key];
-    });
+
+    row["id"] = data.id;
+    row["name"] = data.name;
+    row["age"] = data.age;
+    row["email"] = data.email;
+    row["last_modified"] = data.last_modified;
+
     await row.save();
+    // syncService.syncSheetsToDb();
     return row;
   }
 
   async deleteRow(rowIndex) {
     await this.init();
     const rows = await this.sheet.getRows();
+    // syncService.syncSheetsToDb();
     await rows[rowIndex].delete();
   }
 
@@ -57,27 +80,29 @@ class SheetsService {
     await this.init();
     const rows = await this.sheet.getRows();
 
-    // console.log(`Total rows: ${rows.length}`);
-    // console.log("First row data:", rows[0]._rawData);
-    // console.log("First row id:", rows[0]._rawData[0]);
-
-    let maxId = 0;
+    let maxTimestamp = 0;
     for (const row of rows) {
-      // console.log(`Processing row: ${row._rowNumber}`);
-      // console.log("Row data:", row._rawData);
-      // console.log("Row id:", row._rawData[0]);
+      const dateStr = row._rawData[4];
+      const timestamp = new Date(dateStr).getTime();
 
-      const id = parseInt(row._rawData[0], 10);
-      // console.log(`Parsed id: ${id}`);
-
-      if (!isNaN(id) && id > maxId) {
-        maxId = id;
-        // console.log(`New max id: ${maxId}`);
+      if (!isNaN(timestamp) && timestamp > maxTimestamp) {
+        maxTimestamp = timestamp;
       }
     }
 
-    console.log(`Final max ID from Google Sheets: ${maxId}`);
-    return maxId;
+    console.log(`Final max timestamp from Google Sheets: ${maxTimestamp}`);
+    return maxTimestamp;
+  }
+
+  getFormattedTimestamp() {
+    // const date = new Date();
+    // return Utilities.formatDate(
+    //   date,
+    //   Session.getScriptTimeZone(),
+    //   "yyyy-MM-dd HH:mm:ss"
+    // );
+    const date = new Date();
+    return date.toISOString();
   }
 }
 

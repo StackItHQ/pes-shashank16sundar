@@ -1,4 +1,5 @@
 const pool = require("../configs/database");
+const syncService = require("./syncService");
 
 class DatabaseService {
   async getAllRecords() {
@@ -7,13 +8,11 @@ class DatabaseService {
   }
 
   async insertRecord(data) {
-    console.log(data);
-
-    const { id, name, age, email } = data;
-    const [result] = await pool.query(
+    const result = await pool.query(
       "INSERT INTO table2x (id, name, age, email) VALUES (?, ?, ?, ?)",
-      [id, name, age, email]
+      [data.id, data.name, data.age, data.email]
     );
+    // await syncService.syncDbToSheets();
     return result;
   }
 
@@ -23,19 +22,21 @@ class DatabaseService {
       "UPDATE table2x SET name = ?, age = ?, email = ? WHERE id = ?",
       [name, age, email, id]
     );
+    // await syncService.syncDbToSheets();
     return result;
   }
 
   async deleteRecord(id) {
     const [result] = await pool.query("DELETE FROM table2x WHERE id = ?", [id]);
+    // await syncService.syncDbToSheets();
     return result;
   }
 
   async getLastModifiedTime() {
     const [result] = await pool.query(
-      "SELECT MAX(id) as last_modified FROM table2x"
+      "SELECT MAX(last_modified) as last_modified FROM table2x"
     );
-    return result[0].last_modified;
+    return new Date(result[0].last_modified).getTime();
   }
 }
 
