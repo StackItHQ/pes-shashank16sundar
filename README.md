@@ -45,11 +45,11 @@ Once you're done, make sure you **record a video** showing your project working.
 
 We have a checklist at the bottom of this README file, which you should update as your progress with your assignment. It will help us evaluate your project.
 
-- [ ] My code's working just fine! 🥳
+- [x] My code's working just fine! 🥳
 - [ ] I have recorded a video showing it working and embedded it in the README ▶️
-- [ ] I have tested all the normal working cases 😎
+- [x] I have tested all the normal working cases 😎
 - [ ] I have even solved some edge cases (brownie points) 💪
-- [ ] I added my very planned-out approach to the problem at the end of this README 📜
+- [x] I added my very planned-out approach to the problem at the end of this README 📜
 
 ## Got Questions❓
 Feel free to check the discussions tab, you might get some help there. Check out that tab before reaching out to us. Also, did you know, the internet is a great place to explore? 😛
@@ -60,3 +60,21 @@ All the best ✨.
 
 ## Developer's Section
 *Add your video here, and your approach to the problem (optional). Leave some comments for us here if you want, we will be reading this :)*
+
+## Approach
+
+- **Two-way synchronization**: The solution implements two-way syncing between Google Sheets and a MySQL database, ensuring that both systems remain consistent by comparing `last_modified` timestamps.
+
+- **Google Sheets timestamp automation**: A Google Apps Script automatically updates the `last_modified` column in Sheets whenever a row is inserted or modified, enabling precise tracking of changes.
+
+- **Database timestamp comparison**: The MySQL database also stores a `last_modified` timestamp for each record. When syncing, the system compares the latest timestamps between Google Sheets and the database to determine which data is more up-to-date.
+
+- **Sync services**: The implementation includes two separate services:
+    - Sync from Sheets to the database: Updates the database when Sheets contains more recent data.
+    - Sync from the database to Sheets: Updates Google Sheets when the database has more recent data.
+
+- **Timestamps in UTC**: Both Google Sheets and MySQL store timestamps in UTC format, ensuring consistency across different time zones and preventing synchronization conflicts.
+
+- **Error handling**: The system handles existing records by checking if a corresponding record exists in both Sheets and the database. If a record exists, it updates the system with older data, otherwise, it inserts new data.
+
+This approach ensures reliable and accurate synchronization between the Google Sheets and MySQL database, resolving discrepancies based on `last_modified` timestamps.
