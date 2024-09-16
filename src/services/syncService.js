@@ -6,19 +6,18 @@ class SyncService {
     const sheetRows = await sheetsService.getAllRows();
     const dbRecords = await databaseService.getAllRecords();
 
-    console.log(Array.isArray(dbRecords));
-    console.log(dbRecords);
+    // console.log(dbRecords);
 
     for (const sheetRow of sheetRows) {
       sheetRow.id = Number(sheetRow.id);
       sheetRow.age = Number(sheetRow.age);
-      console.log("Sheet Row:", sheetRow);
+      // console.log("Sheet Row:", sheetRow);
 
       const existingRecord = dbRecords.find(
         (record) => record.id === sheetRow.id
       );
 
-      console.log("Existing record : ", existingRecord);
+      // console.log("Existing record : ", existingRecord);
 
       if (existingRecord) {
         if (
@@ -58,13 +57,14 @@ class SyncService {
         (row) => Number(row.id) === dbRecord.id
       );
 
-      console.log("db ", dbRecord.last_modified);
-      console.log("sheets : ", existingRow.last_modified);
+      // console.log("db ", dbRecord.last_modified);
+      // console.log("sheets : ", existingRow.last_modified);
 
       if (existingRow) {
         if (
           new Date(dbRecord.last_modified) > new Date(existingRow.last_modified)
         ) {
+          console.log("hello");
           await sheetsService.updateRow(
             sheetRows.indexOf(existingRow),
             dbRecord
@@ -75,9 +75,9 @@ class SyncService {
           existingRow.id = Number(existingRow.id);
           existingRow.age = Number(existingRow.age);
           databaseService.updateRecord(dbRecord.id, existingRow);
-        } else {
-          await sheetsService.addRow(dbRecord);
         }
+      } else {
+        await sheetsService.addRow(dbRecord);
       }
     }
 

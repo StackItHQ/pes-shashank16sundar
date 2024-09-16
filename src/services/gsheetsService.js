@@ -2,6 +2,7 @@ const { GoogleSpreadsheet } = require("google-spreadsheet");
 const { JWT } = require("google-auth-library");
 const { google } = require("googleapis");
 const syncService = require("./syncService");
+const moment = require("moment");
 
 require("dotenv").config();
 
@@ -47,7 +48,7 @@ class SheetsService {
       name: data.name,
       age: data.age,
       email: data.email,
-      last_modified: data.last_modified,
+      last_modified: this.formatDate(data.last_modified),
     };
     await this.sheet.addRow(rowData);
     // syncService.syncSheetsToDb();
@@ -55,17 +56,32 @@ class SheetsService {
   }
 
   async updateRow(rowIndex, data) {
+    console.log("Inside updateRow method");
+
     await this.init();
     const rows = await this.sheet.getRows();
     const row = rows[rowIndex];
+    console.log("before : ", row);
 
-    row["id"] = data.id;
-    row["name"] = data.name;
-    row["age"] = data.age;
-    row["email"] = data.email;
-    row["last_modified"] = data.last_modified;
+    row.id = data.id;
+    row.name = data.name;
+    row.age = data.age;
+    row.email = data.email;
+    row.last_modified = this.formatDate(data.last_modified);
 
-    await row.save();
+    console.log("after : ", row);
+
+    // await row.save();
+    // console.log("after2 : ", row);
+
+    try {
+      // Save the changes to the Google Sheet
+      await row.save();
+      console.log("Row successfully updated and saved");
+    } catch (error) {
+      console.error("Error saving row to Google Sheets:", error);
+    }
+
     // syncService.syncSheetsToDb();
     return row;
   }
@@ -96,15 +112,8 @@ class SheetsService {
     return maxTimestamp;
   }
 
-  getFormattedTimestamp() {
-    // const date = new Date();
-    // return Utilities.formatDate(
-    //   date,
-    //   Session.getScriptTimeZone(),
-    //   "yyyy-MM-dd HH:mm:ss"
-    // );
-    const date = new Date();
-    return date.toISOString();
+  formatDate(date) {
+    return moment(date).format("YYYY-MM-DD HH:mm:ss");
   }
 }
 
