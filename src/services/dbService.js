@@ -36,7 +36,13 @@ class DatabaseService {
     const [result] = await pool.query(
       "SELECT MAX(last_modified) as last_modified FROM table2x"
     );
-    return new Date(result[0].last_modified).getTime();
+    const utcDate = new Date(result[0].last_modified);
+
+    // // Add 5 hours and 30 minutes (in milliseconds) to the UTC timestamp
+    // const istOffset = 5.5 * 60 * 60 * 1000; // 5 hours and 30 minutes in milliseconds
+    // const istDate = new Date(utcDate.getTime() + istOffset);
+
+    return utcDate;
   }
 }
 

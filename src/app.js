@@ -27,4 +27,4 @@ setInterval(async () => {
   } catch (error) {
     console.error("Periodic sync error:", error);
   }
-}, 1 * 10 * 1000);
+}, 3 * 10 * 1000);

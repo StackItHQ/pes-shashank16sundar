@@ -42,11 +42,11 @@ class SyncService {
       }
     }
 
-    // for (const dbRecord of dbRecords) {
-    //   if (!sheetRows.find((row) => row.id === dbRecord.id)) {
-    //     // await databaseService.deleteRecord(dbRecord.id);
-    //   }
-    // }
+    for (const dbRecord of dbRecords) {
+      if (!sheetRows.find((row) => Number(row.id) === dbRecord.id)) {
+        await databaseService.deleteRecord(dbRecord.id);
+      }
+    }
   }
 
   async syncDbToSheets() {
@@ -57,6 +57,9 @@ class SyncService {
       const existingRow = sheetRows.find(
         (row) => Number(row.id) === dbRecord.id
       );
+
+      console.log("db ", dbRecord.last_modified);
+      console.log("sheets : ", existingRow.last_modified);
 
       if (existingRow) {
         if (
@@ -78,11 +81,11 @@ class SyncService {
       }
     }
 
-    for (const sheetRow of sheetRows) {
-      if (!dbRecords.find((record) => record.id === sheetRow.id)) {
-        await sheetsService.deleteRow(sheetRows.indexOf(sheetRow));
-      }
-    }
+    // for (const sheetRow of sheetRows) {
+    //   if (!dbRecords.find((record) => record.id === sheetRow.id)) {
+    //     await sheetsService.deleteRow(sheetRows.indexOf(sheetRow));
+    //   }
+    // }
   }
 
   async sync() {

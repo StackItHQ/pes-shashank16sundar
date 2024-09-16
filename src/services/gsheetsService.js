@@ -35,7 +35,8 @@ class SheetsService {
       name: row._rawData[1],
       age: row._rawData[2],
       email: row._rawData[3],
-      last_modified: new Date(row._rawData[4]).getTime(),
+      // last_modified: new Date(row._rawData[4]).getTime(),
+      last_modified: new Date(row._rawData[4]),
     }));
   }
 
@@ -83,7 +84,8 @@ class SheetsService {
     let maxTimestamp = 0;
     for (const row of rows) {
       const dateStr = row._rawData[4];
-      const timestamp = new Date(dateStr).getTime();
+      // const timestamp = new Date(dateStr).getTime();
+      const timestamp = new Date(dateStr);
 
       if (!isNaN(timestamp) && timestamp > maxTimestamp) {
         maxTimestamp = timestamp;
